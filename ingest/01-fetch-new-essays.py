@@ -16,9 +16,17 @@ from sickle import Sickle
 import xml.etree.ElementTree as ET
 import json
 from neo4j import GraphDatabase
-
-
 from xml.etree import ElementTree as ET
+
+# Neo4j connection details
+import os
+from dotenv.main import load_dotenv
+load_dotenv()
+
+neo4j_uri = "bolt://localhost:7687"  # Replace with your Neo4j URI
+neo4j_user = os.environ.get("NEO4J_USER")                # Replace with your Neo4j username
+neo4j_password = os.environ.get("NEO4J_PASSWORD")         # Replace with your Neo4j password
+
 
 def parse_xml_record(record):
     namespaces = {
@@ -70,13 +78,14 @@ def fetch_new_essays(base_url):
 
     essays = []
     for record in records:
-        print("Processing record:")
-        print(record.raw)
+        # print("Processing record:")
+        # print(record.raw)
         parsed_data = parse_xml_record(record)
         if parsed_data:
+            print(parsed_data["date"], parsed_data["title"])
             essays.append(parsed_data)
         else:
-            print("Failed to parse record, see raw XML above.")
+            print("Failed to parse record: \n" + record.raw)
 
     return essays
 
@@ -111,11 +120,6 @@ params = {
 
 base_url = 'https://essay.utwente.nl/cgi/oai2'
 new_essays = fetch_new_essays(base_url)
-
-# Neo4j connection details
-neo4j_uri = "bolt://localhost:7687"  # Replace with your Neo4j URI
-neo4j_user = "neo4j"                # Replace with your Neo4j username
-neo4j_password = "password"         # Replace with your Neo4j password
 
 save_to_neo4j(new_essays, neo4j_uri, neo4j_user, neo4j_password)
 

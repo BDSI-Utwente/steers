@@ -1,35 +1,19 @@
 services:
-  db:
-    image: postgres
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      PGDATA: /var/lib/postgresql/data/pgdata
-    volumes: 
-      - postgres-db:/var/lib/postgresql/data/pgdata
-    ports:
-      - 5432:5432
+    neo4j:
+        image: neo4j:latest
+        ports:
+            - 7474:7474
+            - 7687:7687
+        volumes:
+            - neo4j-db:/data
+            - ./db/logs:/logs
+            - ./db/plugins:/plugins
+            - ./db/import:/var/lib/neo4j/import
 
-  neo4j:
-    image: neo4j:latest
-    ports:
-      - 7474:7474
-      - 7687:7687
-    volumes:
-      - neo4j-db:/data
-      - ./db/logs:/logs
-      - ./db/plugins:/plugins
-      - ./db/import:/var/lib/neo4j/import
-
-    # first time setup
-    environment:
-      - NEO4J_AUTH=neo4j/password
-      - NEO4J_PLUGINS=["graph-data-science", "apoc"]
-
-  adminer:
-    image: adminer
-    ports:
-      - 8080:8080
+        # first time setup
+        environment:
+            - NEO4J_AUTH=${NEO4J_USER}/${NEO4J_PASSWORD}
+            - NEO4J_PLUGINS=["graph-data-science", "apoc"]
 
 volumes:
-  postgres-db:
-  neo4j-db:
+    neo4j-db:
